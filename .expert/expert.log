@@ -1,0 +1,4 @@
+
+22:46:54.404 instance_id=1A0FE5CE6C0 [debug] handled notification client -> server workspace/didChangeWatchedFiles in 758µs
+
+22:47:17.625 instance_id=1A0FE5CE6C0 [debug] handled request client -> server textDocument/codeLens in 472µs
