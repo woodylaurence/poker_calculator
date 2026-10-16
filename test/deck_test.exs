@@ -66,6 +66,6 @@ defmodule DeckTest do
     cards_to_remove = [Card.new(:nine, :hearts), Card.new(:ace, :spades)]
 
     assert {:ok, updated_deck} = deck |> Deck.remove_cards(cards_to_remove)
-    assert for card <- cards_to_remove, do: card not in updated_deck.cards
+    for card <- cards_to_remove, do: assert card not in updated_deck.cards
   end
 end
