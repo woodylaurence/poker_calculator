@@ -1,6 +1,10 @@
 defmodule PokerCalculator.Models.Hand do
   defstruct  [cards: []]
 
+  #the domain shouldn't handle these cases, we should end up with missing function definitions for invalid cases
+  # simulation creating hands should never cause an issue
+  # hands created from user can be validated at a layer outside the domain
+
   def new(starting_cards \\ []), do: add_cards(%__MODULE__{}, starting_cards)
 
   def add_cards(%__MODULE__{cards: cards}, cards_to_add) do
