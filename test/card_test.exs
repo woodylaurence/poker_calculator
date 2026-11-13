@@ -23,4 +23,10 @@ defmodule CardTest do
       Card.new(:eleven, :hearts)
     end
   end
+
+  test "can get the value of a rank" do
+    card = Card.new(:four, :spades)
+
+    assert Card.rank_value(card) == 4
+  end
 end
