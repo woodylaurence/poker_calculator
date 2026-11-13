@@ -8,6 +8,9 @@ defmodule PokerCalculator.HandRankCalculator do
 
     case group_counts do
       [4 | _] -> get_four_of_a_kind_rank(card_groups)
+      [3 | _] -> get_three_of_a_kind_rank(card_groups)
+      [2, 2 | _] -> get_two_pair_rank(card_groups)
+      [2  | _] -> get_pair_rank(card_groups)
       _ -> HandRank.new(:high_card, card_groups |> Enum.map(&elem(&1, 1)) |> Enum.take(5))
     end
   end
@@ -19,7 +22,13 @@ defmodule PokerCalculator.HandRankCalculator do
     |> Enum.sort_by(fn {count, rank} -> {count, Card.rank_value(rank)} end, :desc)
   end
 
-  defp get_four_of_a_kind_rank([{4, quads} | other_groups]), do: HandRank.new(:four_of_a_kind, [quads | get_kickers(other_groups, 1)])
+  defp get_four_of_a_kind_rank([{4, quad_rank} | tail]), do: HandRank.new(:four_of_a_kind, [quad_rank | get_kickers(tail, 1)])
+
+  defp get_three_of_a_kind_rank([{3, triple_rank} | tail]), do: HandRank.new(:three_of_a_kind, [triple_rank | get_kickers(tail, 2)])
+
+  defp get_two_pair_rank([{2, higher_pair_rank}, {2, lower_pair_rank} | tail]), do: HandRank.new(:two_pair, [higher_pair_rank, lower_pair_rank | get_kickers(tail, 1)])
+
+  defp get_pair_rank([{2, pair_rank} | tail]), do: HandRank.new(:pair, [pair_rank | get_kickers(tail, 3)])
 
   defp get_kickers(remaining_groups, num_to_take) do
     remaining_groups
