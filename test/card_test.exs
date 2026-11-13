@@ -24,9 +24,17 @@ defmodule CardTest do
     end
   end
 
-  test "can get the value of a rank" do
+  test "can get the value of a rank by card" do
     card = Card.new(:four, :spades)
 
     assert Card.rank_value(card) == 4
+  end
+
+  test "can get the value of a rank by rank" do
+    assert Card.rank_value(:jack) == 11
+  end
+
+  test "can get the rank of a value" do
+    assert Card.value_rank(3) == :three
   end
 end

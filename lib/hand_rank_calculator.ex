@@ -9,12 +9,39 @@ defmodule PokerCalculator.HandRankCalculator do
       |> Enum.sort_by(&elem(&1, 0), :desc)
 
     case card_by_suit_groups do
-      [{n, _} | _] when n >= 5 -> get_flush_rank(card_by_suit_groups)
-      _ -> calculate_multi_card_hand_rank(hand)
+      [{n, flush_cards} | _] when n >= 5 ->
+          case get_kicker_if_straight(flush_cards) do
+            nil -> get_flush_rank(card_by_suit_groups)
+            kicker -> get_straight_flush_rank(kicker)
+          end
+      _ ->
+        case get_kicker_if_straight(Enum.map(cards, & &1.rank)) do
+          nil -> calculate_multi_card_hand_rank(hand)
+          kicker -> get_straight_rank(kicker)
+        end
     end
   end
 
+  defp get_straight_flush_rank(:ace), do: HandRank.new(:royal_flush, [])
+  defp get_straight_flush_rank(kicker), do: HandRank.new(:straight_flush, [kicker])
+
   defp get_flush_rank([{_, flush_values} | _]), do: HandRank.new(:flush, flush_values |> Enum.sort_by(&Card.rank_value/1, :desc) |> Enum.take(5))
+
+  defp get_straight_rank(kicker), do: HandRank.new(:straight, [kicker])
+
+  defp get_kicker_if_straight(card_ranks) do
+    sorted_card_ranks = card_ranks
+                        |> Enum.uniq()
+                        |> Enum.map(&Card.rank_value/1)
+                        |> Enum.sort(:desc)
+
+    sorted_card_ranks = if (Enum.at(sorted_card_ranks, 0) == 14), do: sorted_card_ranks ++ [1], else: sorted_card_ranks
+    sorted_card_ranks
+    |> Enum.chunk_every(5, 1, :discard)
+    |> Enum.map(fn [high | _] = run -> if (run == [high, high-1, high-2, high-3, high-4]), do: high, else: nil end)
+    |> Enum.find(nil, fn rank -> rank != nil end)
+    |> Card.value_rank()
+  end
 
   defp calculate_multi_card_hand_rank(%Hand{cards: cards}) do
     card_groups = get_multi_card_groups(cards)
